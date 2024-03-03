@@ -1,9 +1,12 @@
 import Header from '@/app/components/Header'
 import { Post } from '@/app/utils/interface'
 import { client } from '@/sanity/lib/client'
+import { urlForImage } from '@/sanity/lib/image'
 import { PortableText } from '@portabletext/react'
 import { VT323 } from 'next/font/google'
+import Image from 'next/image'
 import Link from 'next/link'
+import {notFound} from 'next/navigation'
 import React from 'react'
 interface Params {
     params:{
@@ -33,6 +36,7 @@ const getPost = async (slugString:string)=>{
 }
 const page = async ({params}:Params) => {
     const post : Post = await getPost(params?.slug)
+    if(!post) notFound()
   return (
     <div>
         <Header title={post?.title}/>
@@ -52,6 +56,7 @@ const page = async ({params}:Params) => {
             <div className={richTextStyles}>
                 <PortableText 
                 value={post.body}
+                components={myPortableTextComponents}
                 />
             </div>
         </div>
@@ -59,6 +64,11 @@ const page = async ({params}:Params) => {
   )
 }
 
+const myPortableTextComponents = {
+    types: {
+      image: ({value}:any) => <Image src={urlForImage(value)} alt="Post" width={700} height={700} />,
+    },
+  }
 export default page
 
 const richTextStyles = `
